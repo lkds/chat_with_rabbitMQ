@@ -21,5 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('chat/login/', chat_view.login),
     path('chat/sendMsg/<str:sendUser>/<str:targetUser>/<str:msgType>/<str:msg>/', chat_view.sendMsg),#sendUser, targetUser, msgType, msg
-    path('chat/getMsg/<str:id>',chat_view.getMsg),   
+    path('chat/getMsg/<str:id>/',chat_view.getMsg),   
 ]
