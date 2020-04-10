@@ -3,6 +3,7 @@ from django.http import HttpRequest,HttpResponse
 from chat.rabbitMQ import RabbitMQMiddleWare,RabbitMQReceiver,globalMsg
 import json
 import threading
+import datetime
 
 
 #定义一个全局rabbitMQMiddleware
@@ -33,17 +34,14 @@ def sendMsg(request, sendUser, targetUser, msgType, msg):
         rabbitMQMiddleWare.sendSingleMsg(msg, targetUser)
     
     if (targetUser in globalMsg.keys()):
-        globalMsg[targetUser].append({sendUser:sendUser, msgType:msgType, time:date.now(),msg:msg})
+        globalMsg[targetUser].append({'sendUser':sendUser, 'msgType':msgType, 'time':datetime.datetime.now().strftime('%H:%M:%S'),'msg':msg})
 
 def getMsg(request,id):
     if (id in globalMsg.keys()):
-        return dict[id]
-
-def sendMsg(request,id,msg):
-    rabbitMQMiddleWare.sendSingleMsg(self,msg, id)
-
+        return HttpResponse(globalMsg[id])
+    return HttpResponse('null')
+    
 def createNewReceiver(loginId):
     receiver = RabbitMQReceiver(loginId)
-    while True:
-        print(1)
+
     
