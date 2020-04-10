@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.http import HttpRequest,HttpResponse
 from chat.rabbitMQ import RabbitMQMiddleWare,RabbitMQReceiver,globalMsg
 import json
+import threading
+
 
 #定义一个全局rabbitMQMiddleware
 rabbitMQMiddleWare = RabbitMQMiddleWare()
@@ -16,7 +18,9 @@ def login(request):
         print(loginId)
         if (not loginId in globalMsg.keys()):
             globalMsg[loginId] = []
-            receiver = RabbitMQReceiver(loginId)
+            thread = threading.Thread(target=createNewReceiver,args=loginId)
+            thread.start()
+            # receiver = RabbitMQReceiver(loginId)
         return render(request, 'chat.html', {'loginId':loginId})
 
 def sendMsg(request, sendUser, targetUser, msgType, msg):
@@ -38,3 +42,8 @@ def getMsg(request,id):
 def sendMsg(request,id,msg):
     rabbitMQMiddleWare.sendSingleMsg(self,msg, id)
 
+def createNewReceiver(loginId):
+    receiver = RabbitMQReceiver(loginId)
+    while True:
+        print(1)
+    
