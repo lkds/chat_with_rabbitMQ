@@ -61,3 +61,7 @@ def login(request):
 def getMsg(request,id):
     if (id in globalMsg.keys()):
         return dict[id]
+
+def sendMsg(request,id,msg):
+    rabbitMQMiddleWare.sendSingleMsg(self,msg, id)
+
