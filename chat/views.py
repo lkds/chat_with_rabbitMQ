@@ -5,4 +5,4 @@ import chat.rabbitMQ
 # Create your views here.
 def login(request):
     if (request.method == 'GET'):
-        return render(request,'chat.html')
+        return render(request,'login.html')
