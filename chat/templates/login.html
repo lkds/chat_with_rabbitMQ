@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>chat_with_rabbitMQ</title>
+</head>
+<body>
+    <center>
+        <h1>聊天室登录</h1>
+        <form action="/chat/login/" method="POST"></form>
+        <input class="nmsl" type="text"  name="loginId" placeholder="请输入聊天室昵称" value="{{ loginAccount }}" required>
+        <br><br>
+        <br>
+        <!-- <label style="color:red;">{{ msg }}</label>  -->
+        <label>{{ msg }}</label> 
+        <br>
+        <button id = "button" type="submit">马上登陆</button>
+
+    </center>
+</body>
+</html>
