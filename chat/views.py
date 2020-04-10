@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.http import HttpRequest,HttpResponse
+import chat.rabbitMQ
 
 def gotoLogin(request):
     return render(request,'login.html')
@@ -6,7 +8,12 @@ def gotoLogin(request):
 
 # Create your views here.
 def login(request):
-    #接收登录页面传来的用户id
-    loginId = request.Post.get('loginId',None)
+    #接收登录页面传来的用户id   
+    if (request.method == 'GET'):
+        return render(request,'login.html')
+    elif request.POST:
+        loginId = request.POST.get('loginId',None)
+        print(loginId)
+        return render(request, 'login.html',{'msg':'asd'})
 
-    return render(request, 'login.html', {'msg':' 登录成功'})
+

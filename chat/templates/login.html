@@ -8,15 +8,19 @@
 <body>
     <center>
         <h1>聊天室登录</h1>
-        <form action="/chat/login/" method="POST"></form>
-        <input class="nmsl" type="text"  name="loginId" placeholder="请输入聊天室昵称" value="{{ loginAccount }}" required>
-        <br><br>
+        <form action="/chat/login/" method="POST">
+        {% csrf_token %}
+        
+        <input  type="text"  name="loginId" placeholder="请输入聊天昵称" value="{{ loginId }}" required>
+
         <br>
         <!-- <label style="color:red;">{{ msg }}</label>  -->
         <label>{{ msg }}</label> 
-        <br>
-        <button id = "button" type="submit">马上登陆</button>
 
+        <br>
+
+        <button id = "button" type="submit">进入聊天室</button>
+        </form>
     </center>
 </body>
 </html>

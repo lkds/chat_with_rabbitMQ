@@ -18,8 +18,11 @@ from django.urls import path
 from chat import views as chat_v
 
 
+import chat.views as chat_view
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('chat/login/', chat_v.login),
     path('chat/',chat_v.gotoLogin),
+    # path('login/',chat_view.login),
 ]
