@@ -1,4 +1,5 @@
 import pika
+import datetime
 
 #储存消息
 #格式：用户名：[{},{},{},{}]-消息
@@ -93,4 +94,4 @@ class RabbitMQReceiver:
         msgInfo = method.routing_key.split('.')[2]
         sendUser = msgInfo[2]
         msgType = msgInfo[1]
-        globalMsg[id].append({sendUser:sendUser, msgType:msgType, time:date.now(),msg:body})
+        globalMsg[id].append({'sendUser':sendUser, 'msgType':msgType, 'time':datetime.datetime.now().strftime('%H:%M:%S'),'msg':body})
