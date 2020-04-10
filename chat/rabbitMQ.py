@@ -33,7 +33,8 @@ class RabbitMQMiddleWare:
 
 
 class RabbitMQReceiver:
-    def __init__(self):
+    def __init__(self, id):
+        self.id = id
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(hostAddress, credentials=credentials))
 
@@ -41,12 +42,12 @@ class RabbitMQReceiver:
         self.channel.exchange_declare(exchange='topic_chat', exchange_type='topic')
         result = channel.queue_declare('', exclusive=True)
         self.queue_name = result.method.queue
+        self.channel.queue_bind(
+            exchange='topic_chat', queue=self.queue_name, routing_key='message.*.'+id)
         self.channel.basic_consume(
-            queue=self.queue_name, on_message_callback=callback, auto_ack=True)
+            queue=self.queue_name, on_message_callback=self.on_response, auto_ack=True)
+        self.channel.start_consuming()
     
     def on_response(self, ch, method, props, body):
         self.receive_user = method.routing_key
         self.receive_body = body
-
-    def receiveSingleChat(self):
-        self.channel.start_consuming()

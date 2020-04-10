@@ -14,7 +14,7 @@ globalMsg = dict()
 """
 {
     用户名1:[
-        {time：'xxx',msg:'xxx'},
+        {sendUser:'', type:'', time：'xxx',msg:'xxx'},
         {time：'xxx',msg:'xxx'},
         {time：'xxx',msg:'xxx'},
         ...
@@ -35,6 +35,7 @@ eg:
         {time:'10:36',msg:'zaijian'},
         {time:'10:38',msg:'hehh'},
         {time:'10:39',msg:'xxx'}
+        {发送方显示}
     ],
     paidaye:[
         {time:'10:34',msg:'hi'},
@@ -42,6 +43,7 @@ eg:
         {time:'10:36',msg:'zaijian'},
         {time:'10:38',msg:'hehh'},
         {time:'10:39',msg:'xxx'}
+        {}
     ],
 }
 """
@@ -55,8 +57,21 @@ def login(request):
         loginId = request.POST.get('loginId',None)
         print(loginId)
         if (not loginId in globalMsg.keys()):
-            globalMsg[loginId]= []
+            globalMsg[loginId] = []
+            receiver = RabbitMQReceiver(loginId)
         return render(request, 'chat.html', {'loginId':loginId})
+
+def sendMsg(request, sendUser, targetUser, msgType, msg):
+    """
+    发送消息
+    """
+    if (msgType == 'group'):
+        rabbitMQMiddleWare.sendGroupMsg(msg)
+    else:
+        rabbitMQMiddleWare.sendSingleMsg(msg, targetUser)
+    
+    if (targetUser in globalMsg.keys()):
+        globalMsg[targetUser].append({sendUser:sendUser, msgType:msgType, time：date.now(),msg:msg})
 
 def getMsg(request,id):
     if (id in globalMsg.keys()):
