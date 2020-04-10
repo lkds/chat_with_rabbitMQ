@@ -11,6 +11,40 @@ rabbitMQMiddleWare = RabbitMQMiddleWare()
 #格式：用户名：[{},{},{},{}]-消息
 globalMsg = dict()
 
+"""
+{
+    用户名1:[
+        {time：'xxx',msg:'xxx'},
+        {time：'xxx',msg:'xxx'},
+        {time：'xxx',msg:'xxx'},
+        ...
+    ],
+    用户名2:[
+        {time：'xxx',msg:'xxx'},
+        {time：'xxx',msg:'xxx'},
+        {time：'xxx',msg:'xxx'},
+        ...
+    ]
+}
+
+eg:
+{
+    pilot:[
+        {time:'10:34',msg:'hi'},
+        {time:'10:35',msg:'nihao'},
+        {time:'10:36',msg:'zaijian'},
+        {time:'10:38',msg:'hehh'},
+        {time:'10:39',msg:'xxx'}
+    ],
+    paidaye:[
+        {time:'10:34',msg:'hi'},
+        {time:'10:35',msg:'nihao'},
+        {time:'10:36',msg:'zaijian'},
+        {time:'10:38',msg:'hehh'},
+        {time:'10:39',msg:'xxx'}
+    ],
+}
+"""
 
 # Create your views here.
 def login(request):
@@ -20,7 +54,9 @@ def login(request):
     elif request.POST:
         loginId = request.POST.get('loginId',None)
         print(loginId)
-        return render(request, 'login.html', {'loginId':loginId})
+        if (not loginId in globalMsg.keys()):
+            globalMsg[loginId]= []
+        return render(request, 'chat.html', {'loginId':loginId})
 
 def getMsg(request,id):
     if (id in globalMsg.keys()):
