@@ -14,21 +14,21 @@ class RabbitMQMiddleWare:
         self.channel = self.connection.channel()
         self.channel.exchange_declare(exchange='topic_chat', exchange_type='topic')
     
-    def sendSingleMsg(msg, id):
+    def sendSingleMsg(self,msg, id):
         """
         发送单聊消息
         """
         self.channel.basic_publish(
             exchange='topic_chat', routing_key='message.single.' + id, body=msg)
 
-    def sendGroupMsg(msg, groupID=''):
+    def sendGroupMsg(self,msg, groupID=''):
         """
         发送群聊消息
         """
         self.channel.basic_publish(
             exchange='topic_chat', routing_key='message.group', body=msg)
     
-    def closeConnection():
+    def closeConnection(self):
         self.connection.close()
 
 
@@ -48,5 +48,5 @@ class RabbitMQReceiver:
         self.receive_user = method.routing_key
         self.receive_body = body
 
-    def receiveSingleChat():
+    def receiveSingleChat(self):
         self.channel.start_consuming()
