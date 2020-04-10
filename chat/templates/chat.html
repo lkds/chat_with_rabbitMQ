@@ -175,5 +175,24 @@
 		let val = $("#comment").val();
     $(".message-text2").html(val)
 	})
+    setInterval(() => {
+          $.ajax({
+            type: "GET",
+            url: "http://127.0.0.1:8000/chat/getMsg/"+"{{loginId}}"+"/",
+            dataType: "json",
+            success: function(data){
+                        console.log(data);
+                      },
+            error: (err) => {
+              console.log(err);
+            }
+         });
+    },1000);
+  }
+
+  renderMsg = (msg) => {
+    
+  }
+</script>
 
 </script>

@@ -2,6 +2,12 @@ from django.shortcuts import render
 from django.http import HttpRequest,HttpResponse
 from chat.rabbitMQ import RabbitMQMiddleWare,RabbitMQReceiver
 import json
+<<<<<<< HEAD
+=======
+import threading
+import datetime
+
+>>>>>>> 91288f05e8df650c13c6d8b1217e16d2786b28cb
 
 #定义一个全局rabbitMQMiddleware
 rabbitMQMiddleWare = RabbitMQMiddleWare()
@@ -55,10 +61,30 @@ def login(request):
         loginId = request.POST.get('loginId',None)
         print(loginId)
         if (not loginId in globalMsg.keys()):
-            globalMsg[loginId]= []
+            globalMsg[loginId] = []
+            thread = threading.Thread(target=createNewReceiver,args=(loginId,))
+            thread.start()
+            # receiver = RabbitMQReceiver(loginId)
         return render(request, 'chat.html', {'loginId':loginId})
+
+def sendMsg(request, sendUser, targetUser, msgType, msg):
+    """
+    发送消息
+    """
+    if (msgType == 'group'):
+        rabbitMQMiddleWare.sendGroupMsg(msg)
+    else:
+        rabbitMQMiddleWare.sendSingleMsg(msg, targetUser)
+    
+    if (targetUser in globalMsg.keys()):
+        globalMsg[targetUser].append({'sendUser':sendUser, 'msgType':msgType, 'time':datetime.datetime.now().strftime('%H:%M:%S'),'msg':msg})
 
 def getMsg(request,id):
     if (id in globalMsg.keys()):
-        return dict[id]
+        return HttpResponse(json.dumps({'res':globalMsg[id]}))
+    return HttpResponse({'res':'null'})
 
+def createNewReceiver(loginId):
+    receiver = RabbitMQReceiver(loginId)
+
+    
