@@ -14,6 +14,6 @@ def login(request):
     elif request.POST:
         loginId = request.POST.get('loginId',None)
         print(loginId)
-        return render(request, 'login.html',{'msg':'asd'})
+        return render(request, 'login.html', {'loginId':loginId})
 
 
