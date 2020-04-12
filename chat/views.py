@@ -69,19 +69,27 @@ def login(request):
         # else:
         #     return render(request, 'login.html', {'msg': '这个昵称太抢手了，换一个吧！'})
 
-def sendMsg(request, sendUser, targetUser, msgType, msg):
-    """
-    发送消息
-    """
+def send(sendUser, targetUser, msgType, msg):
     if (msgType == 'group'):
         rabbitMQMiddleWare.sendGroupMsg(msg, sendUser)
     else:
         rabbitMQMiddleWare.sendSingleMsg(msg, targetUser,sendUser)
-    
-    # if (sendUser in globalMsg.keys()):
-    #     globalMsg[sendUser].append({'sendUser':sendUser, 'msgType':msgType, 'time':datetime.datetime.now().strftime('%H:%M:%S'),'msg':msg})
+        
+        # if (sendUser in globalMsg.keys()):
+        #     globalMsg[sendUser].append({'sendUser':sendUser, 'msgType':msgType, 'time':datetime.datetime.now().strftime('%H:%M:%S'),'msg':msg})
 
     return HttpResponse('ok')
+
+def sendMsg(request, sendUser, targetUser, msgType, msg):
+    """
+    发送消息
+    """
+    if request.method == 'POST':
+        if request.POST:
+            msgBody = request.POST.get('msgBody','')
+            return send(sendUser, targetUser, msgType, msgBody)
+    else:
+        return send(sendUser, targetUser, msgType, msg)
 
 def getMsg(request,userID):
     if (userID in globalMsg.keys()):
