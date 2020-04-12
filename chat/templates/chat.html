@@ -27,6 +27,10 @@
                 <img src="{% static 'img/man-2-512.png' %}">
               </div>
             </div>
+            <div class="col-sm-8 col-xs-7 heading-name">
+              <a class="heading-name-meta" id="myID">{{loginId}}</a>
+              <span>Online</span>
+            </div>
             <div class="col-sm-1 col-xs-1  heading-dot  pull-right">
               <i class="fa fa-ellipsis-v fa-2x  pull-right" aria-hidden="true"></i>
             </div>
@@ -48,7 +52,7 @@
 
           <!-- Search Box End -->
           <!-- sideBar -->
-          <div class="row sideBar">
+          <div class="row sideBar" id="listObj">
             <div class="row sideBar-body">
               <div class="col-sm-3 col-xs-3 sideBar-avatar">
                 <div class="avatar-icon">
@@ -58,16 +62,16 @@
               <div class="col-sm-9 col-xs-9 sideBar-main">
                 <div class="row">
                   <div class="col-sm-8 col-xs-8 sideBar-name">
-                    <span class="name-meta">John Doe
-                  </span>
+                    <span class="name-meta">祖安交流</span>
                   </div>
                   <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
-                    <span class="time-meta pull-right">18:18
+                    <span class="time-meta pull-right">大区
                   </span>
                   </div>
                 </div>
               </div>
             </div>
+            
           </div>
           <!-- Sidebar End -->
         </div>
@@ -86,9 +90,8 @@
             </div>
           </div>
           <div class="col-sm-8 col-xs-7 heading-name">
-            <a class="heading-name-meta">John Doe
-            </a>
-            <spa>Online</span>
+            <a class="heading-name-meta" id="targetUser">祖安交流</a>
+            <span>Online</span>
           </div>
           <div class="col-sm-1 col-xs-1  heading-dot pull-right">
             <i class="fa fa-ellipsis-v fa-2x  pull-right" aria-hidden="true"></i>
@@ -107,31 +110,7 @@
             </div>
           </div> {% endcomment %}
 
-          <div class="row message-body">
-            <div class="col-sm-12 message-main-receiver">
-              <div class="receiver">
-                <div class="message-text">
-                 Hyy, Its Awesome..!
-                </div>
-                <span class="message-time pull-right">
-                  Sun
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="row message-body">
-            <div class="col-sm-12 message-main-sender">
-              <div class="sender">
-                <div class="message-text2">
-                  {% comment %} <textarea class="form-control" rows="1" id="rightTextarea"></textarea> {% endcomment %}
-                </div>
-                <span class="message-time pull-right">
-                  Sun
-                </span>
-              </div>
-            </div>
-          </div>
+          
         </div>
         <!-- Message Box End -->
 
@@ -140,15 +119,15 @@
           {% comment %} <div class="col-sm-1 col-xs-1 reply-emojis">
             <i class="fa fa-smile-o fa-2x"></i>
           </div> {% endcomment %}
-          <div class="col-sm-9 col-xs-9 reply-main">
+          <div class="col-sm-11 col-xs-11 reply-main">
             <textarea class="form-control" rows="1" id="comment"></textarea>
           </div>
           {% comment %} <div class="col-sm-1 col-xs-1 reply-recording">
             <i class="fa fa-microphone fa-2x" aria-hidden="true"></i>
           </div> {% endcomment %}
           <div class="col-sm-1 col-xs-1 reply-send">
-            {% comment %} <i class="fa fa-send fa-2x" aria-hidden="true"></i> {% endcomment %}
-            <input type="submit" id="send">
+            <i class="fa fa-send fa-2x" aria-hidden="true" onclick="sendMsg()"></i>
+            {% comment %} <input type="submit" id="send"> {% endcomment %}
           </div>
         </div>
         <!-- Reply Box End -->
@@ -160,39 +139,151 @@
 
   <!-- App End -->
 </body>
-<script>
-  window.onload = () => {
-    
-  }
-</script>
 
-</html>
 
-<script src="jquery.js" type="text/javascript" charset="utf-8"></script>
+
+
 <script type="text/javascript">
+  var msglength = 0;
 
-	$("#send").click(function(){
-		let val = $("#comment").val();
-    $(".message-text2").html(val)
-	})
-    setInterval(() => {
-          $.ajax({
-            type: "GET",
-            url: "http://127.0.0.1:8000/chat/getMsg/"+"{{loginId}}"+"/",
-            dataType: "json",
-            success: function(data){
-                        console.log(data);
-                      },
-            error: (err) => {
-              console.log(err);
-            }
-         });
-    },1000);
+  sendMsg = () => {
+    var msg = $("#comment").val();
+    if(msg === "") {return}
+    //var myID = $("#myID").text();
+    var targetUser = $("#targetUser").text();
+    var msgType = "single";
+    if(targetUser==="祖安交流"){
+      msgType = "group";
+    }
+    $.ajax({
+              type: "GET",
+              url: "http://127.0.0.1:8000/chat/sendMsg/{{loginId}}/"+targetUser+"/"+msgType+"/"+msg+"/",
+              dataType: "json",
+              success: function(data){
+                          console.log(data);
+                          
+                        },
+              error: (err) => {
+                console.log(err);
+              }
+          });
+    $("#comment").val("")
+  }
+
+  msgAjax = () => {
+    $.ajax({
+              type: "GET",
+              url: "http://127.0.0.1:8000/chat/getMsg/"+"{{loginId}}"+"/",
+              dataType: "json",
+              success: function(data){
+                          console.log(data);
+                          if(data.res.length > msglength){
+                            renderMsg(data.res);
+                            msglength = data.res.length
+                          }
+                        },
+              error: (err) => {
+                console.log(err);
+              }
+          });
+  }
+
+  listAjax = () => {
+    $.ajax({
+              type: "GET",
+              url: "http://127.0.0.1:8000/chat/getUserList/",
+              dataType: "json",
+              success: function(data){
+                          console.log(data);
+                          renderList(data.res);
+                        },
+              error: (err) => {
+                console.log(err);
+              }
+          });
+  }
+
+    window.onload = () => {
+      msgAjax();
+      setInterval(msgAjax,1000);
+      listAjax();
+      setInterval(listAjax,3000);
+    }
+  
+  generateMsg = (msg,sendUser,time) => {
+        //var myID = $("#myID").text();
+        var pos = "receiver";
+        var prefix = `<span style="color:blue"><b>${sendUser}:</b></span>`
+        if(sendUser === `{{loginId}}`){
+          pos = "sender"
+          prefix = ""
+        }
+        var tmp = "<div class=\"row message-body\"><div class=\"col-sm-12 message-main-"+pos+"\"><div class=\""+pos+"\">"+
+                "<div class=\"message-text\">"+prefix+msg+"</div><span class=\"message-time pull-right\">"+time+"</span>"+
+              "</div></div></div>"
+        return $(tmp);
   }
 
   renderMsg = (msg) => {
-    
+    var con = $("#conversation");
+    for(var i=msglength;i<msg.length;i++){
+        var data = msg[i];
+        var msgObj = generateMsg(data.msg,data.sendUser,data.time);
+        con.append(msgObj);
+    }
   }
-</script>
+
+  generateList = (userID) => {
+    var t = `<div class="row sideBar-body">
+              <div class="col-sm-3 col-xs-3 sideBar-avatar">
+                <div class="avatar-icon">
+                  <img src="{% static 'img/man-2-512.png' %}">
+                </div>
+              </div>
+              <div class="col-sm-9 col-xs-9 sideBar-main">
+                <div class="row">
+                  <div class="col-sm-8 col-xs-8 sideBar-name">
+                    <span class="name-meta">${userID}</span>
+                  </div>
+                  <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
+                    <span class="time-meta pull-right">用户
+                  </span>
+                  </div>
+                </div>
+              </div>
+            </div>`
+    return $(t);
+  }
+
+  renderList = (list) => {
+    var td = `<div class="row sideBar-body">
+              <div class="col-sm-3 col-xs-3 sideBar-avatar">
+                <div class="avatar-icon">
+                  <img src="{% static 'img/man-2-512.png' %}">
+                </div>
+              </div>
+              <div class="col-sm-9 col-xs-9 sideBar-main">
+                <div class="row">
+                  <div class="col-sm-8 col-xs-8 sideBar-name">
+                    <span class="name-meta">祖安交流</span>
+                  </div>
+                  <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
+                    <span class="time-meta pull-right">大区
+                  </span>
+                  </div>
+                </div>
+              </div>
+            </div>`
+    
+    var listObj = $('#listObj');
+    listObj.html("")
+    list.forEach((item) => {
+      var ttt = generateList(item);
+      listObj.append(ttt);
+    })
+    listObj.prepend($(td))
+  }
 
 </script>
+
+</html>

@@ -51,7 +51,7 @@ class RabbitMQMiddleWare:
     """
     def __init__(self):
         self.connection = pika.BlockingConnection(
-            pika.ConnectionParameters(hostAddress, credentials=credentials))
+            pika.ConnectionParameters(hostAddress, credentials=credentials,heartbeat=0))
 
         self.channel = self.connection.channel()
         self.channel.exchange_declare(exchange='topic_chat', exchange_type='topic')
@@ -63,12 +63,12 @@ class RabbitMQMiddleWare:
         self.channel.basic_publish(
             exchange='topic_chat', routing_key='message.single.' + userID + '.' + sendUser, body=msg)
 
-    def sendGroupMsg(self,msg, userID, sendUser):
+    def sendGroupMsg(self,msg, sendUser):
         """
         发送群聊消息
         """
         self.channel.basic_publish(
-            exchange='topic_chat', routing_key='message.group.'+ userID + '.' + sendUser, body=msg)
+            exchange='topic_chat', routing_key='message.group.'+ sendUser, body=msg)
     
     def closeConnection(self):
         self.connection.close()
@@ -78,21 +78,26 @@ class RabbitMQReceiver:
     def __init__(self, userID):
         self.userID = userID
         self.connection = pika.BlockingConnection(
-            pika.ConnectionParameters(hostAddress, credentials=credentials))
+            pika.ConnectionParameters(hostAddress, credentials=credentials,heartbeat=0))
 
         self.channel = self.connection.channel()
         self.channel.exchange_declare(exchange='topic_chat', exchange_type='topic')
         result = self.channel.queue_declare('', exclusive=True)
         self.queue_name = result.method.queue
         self.channel.queue_bind(
-            exchange='topic_chat', queue=self.queue_name, routing_key='message.*.'+self.userID+'.#')
+            exchange='topic_chat', queue=self.queue_name, routing_key='message.single.' + self.userID + '.*')
+        self.channel.queue_bind(
+            exchange='topic_chat', queue=self.queue_name, routing_key='message.group.*')
         self.channel.basic_consume(
             queue=self.queue_name, on_message_callback=self.on_response, auto_ack=True)
         self.channel.start_consuming()
     
     def on_response(self, ch, method, props, body):
         msgInfo = method.routing_key.split('.')
-        sendUser = msgInfo[3]
         msgType = msgInfo[1]
+        if(msgType == 'group'):
+            sendUser = msgInfo[2]
+        else:
+            sendUser = msgInfo[3]
         print(sendUser,body)
         globalMsg[self.userID].append({'sendUser':sendUser, 'msgType':msgType, 'time':datetime.datetime.now().strftime('%H:%M:%S'),'msg':str(body,'utf8')})

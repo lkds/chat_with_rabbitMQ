@@ -1,13 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpRequest,HttpResponse
-from chat.rabbitMQ import RabbitMQMiddleWare,RabbitMQReceiver
+from chat.rabbitMQ import RabbitMQMiddleWare,RabbitMQReceiver,globalMsg
 import json
-<<<<<<< HEAD
-=======
 import threading
 import datetime
+import pika
 
->>>>>>> 91288f05e8df650c13c6d8b1217e16d2786b28cb
 
 #定义一个全局rabbitMQMiddleware
 rabbitMQMiddleWare = RabbitMQMiddleWare()
@@ -15,7 +13,7 @@ rabbitMQMiddleWare = RabbitMQMiddleWare()
 
 #储存消息
 #格式：用户名：[{},{},{},{}]-消息
-globalMsg = dict()
+# globalMsg = dict()
 
 """
 {
@@ -56,7 +54,7 @@ eg:
 def login(request):
     #接收登录页面传来的用户id   
     if (request.method == 'GET'):
-        return render(request, 'login.html')
+        return render(request, 'login.html',{'msg':''})
     elif request.POST:
         loginId = request.POST.get('loginId',None)
         print(loginId)
@@ -65,19 +63,21 @@ def login(request):
             thread = threading.Thread(target=createNewReceiver,args=(loginId,))
             thread.start()
             # receiver = RabbitMQReceiver(loginId)
-        return render(request, 'chat.html', {'loginId':loginId})
+        return render(request, 'chat.html', {'loginId': loginId})
+        # else:
+        #     return render(request, 'login.html', {'msg': '这个昵称太抢手了，换一个吧！'})
 
 def sendMsg(request, sendUser, targetUser, msgType, msg):
     """
     发送消息
     """
     if (msgType == 'group'):
-        rabbitMQMiddleWare.sendGroupMsg(msg, targetUser, sendUser)
+        rabbitMQMiddleWare.sendGroupMsg(msg, sendUser)
     else:
         rabbitMQMiddleWare.sendSingleMsg(msg, targetUser,sendUser)
     
-    if (sendUser in globalMsg.keys()):
-        globalMsg[sendUser].append({'sendUser':sendUser, 'msgType':msgType, 'time':datetime.datetime.now().strftime('%H:%M:%S'),'msg':msg})
+    # if (sendUser in globalMsg.keys()):
+    #     globalMsg[sendUser].append({'sendUser':sendUser, 'msgType':msgType, 'time':datetime.datetime.now().strftime('%H:%M:%S'),'msg':msg})
 
     return HttpResponse('ok')
 
@@ -90,4 +90,7 @@ def createNewReceiver(loginId):
     print("boot")
     receiver = RabbitMQReceiver(loginId)
 
-    
+def getUserList(request):
+    return HttpResponse(json.dumps({'res':list(globalMsg.keys())}))
+
+
