@@ -29,19 +29,22 @@ def sendMsg(request, sendUser, targetUser, msgType, msg):
     发送消息
     """
     if (msgType == 'group'):
-        rabbitMQMiddleWare.sendGroupMsg(msg)
+        rabbitMQMiddleWare.sendGroupMsg(msg, targetUser, sendUser)
     else:
-        rabbitMQMiddleWare.sendSingleMsg(msg, targetUser)
+        rabbitMQMiddleWare.sendSingleMsg(msg, targetUser,sendUser)
     
-    if (targetUser in globalMsg.keys()):
-        globalMsg[targetUser].append({'sendUser':sendUser, 'msgType':msgType, 'time':datetime.datetime.now().strftime('%H:%M:%S'),'msg':msg})
+    if (sendUser in globalMsg.keys()):
+        globalMsg[sendUser].append({'sendUser':sendUser, 'msgType':msgType, 'time':datetime.datetime.now().strftime('%H:%M:%S'),'msg':msg})
 
-def getMsg(request,id):
-    if (id in globalMsg.keys()):
-        return HttpResponse(json.dumps({'res':globalMsg[id]}))
+    return HttpResponse('ok')
+
+def getMsg(request,userID):
+    if (userID in globalMsg.keys()):
+        return HttpResponse(json.dumps({'res':globalMsg[userID]}))
     return HttpResponse({'res':'null'})
 
 def createNewReceiver(loginId):
+    print("boot")
     receiver = RabbitMQReceiver(loginId)
 
     

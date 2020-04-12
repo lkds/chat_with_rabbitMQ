@@ -56,27 +56,27 @@ class RabbitMQMiddleWare:
         self.channel = self.connection.channel()
         self.channel.exchange_declare(exchange='topic_chat', exchange_type='topic')
     
-    def sendSingleMsg(self,msg, id):
+    def sendSingleMsg(self,msg, userID, sendUser):
         """
         发送单聊消息
         """
         self.channel.basic_publish(
-            exchange='topic_chat', routing_key='message.single.' + id, body=msg)
+            exchange='topic_chat', routing_key='message.single.' + userID + '.' + sendUser, body=msg)
 
-    def sendGroupMsg(self,msg, groupID=''):
+    def sendGroupMsg(self,msg, userID, sendUser):
         """
         发送群聊消息
         """
         self.channel.basic_publish(
-            exchange='topic_chat', routing_key='message.group', body=msg)
+            exchange='topic_chat', routing_key='message.group.'+ userID + '.' + sendUser, body=msg)
     
     def closeConnection(self):
         self.connection.close()
 
 
 class RabbitMQReceiver:
-    def __init__(self, id):
-        self.id = id
+    def __init__(self, userID):
+        self.userID = userID
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(hostAddress, credentials=credentials))
 
@@ -85,13 +85,14 @@ class RabbitMQReceiver:
         result = self.channel.queue_declare('', exclusive=True)
         self.queue_name = result.method.queue
         self.channel.queue_bind(
-            exchange='topic_chat', queue=self.queue_name, routing_key='message.*.'+id)
+            exchange='topic_chat', queue=self.queue_name, routing_key='message.*.'+self.userID+'.#')
         self.channel.basic_consume(
             queue=self.queue_name, on_message_callback=self.on_response, auto_ack=True)
         self.channel.start_consuming()
     
     def on_response(self, ch, method, props, body):
-        msgInfo = method.routing_key.split('.')[2]
-        sendUser = msgInfo[2]
+        msgInfo = method.routing_key.split('.')
+        sendUser = msgInfo[3]
         msgType = msgInfo[1]
-        globalMsg[id].append({'sendUser':sendUser, 'msgType':msgType, 'time':datetime.datetime.now().strftime('%H:%M:%S'),'msg':body})
+        print(sendUser,body)
+        globalMsg[self.userID].append({'sendUser':sendUser, 'msgType':msgType, 'time':datetime.datetime.now().strftime('%H:%M:%S'),'msg':str(body,'utf8')})
