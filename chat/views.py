@@ -59,9 +59,11 @@ def login(request):
         loginId = request.POST.get('loginId',None)
         print(loginId)
         if (not loginId in globalMsg.keys()):
-            globalMsg[loginId] = []
-            thread = threading.Thread(target=createNewReceiver,args=(loginId,))
+            globalMsg[loginId]=[]
+            rabbitMQMiddleWare.sendLoginInfo(loginId)
+            thread = threading.Thread(target=createNewReceiver, args=(loginId,))
             thread.start()
+
             # receiver = RabbitMQReceiver(loginId)
         return render(request, 'chat.html', {'loginId': loginId})
         # else:
@@ -92,5 +94,4 @@ def createNewReceiver(loginId):
 
 def getUserList(request):
     return HttpResponse(json.dumps({'res':list(globalMsg.keys())}))
-
 

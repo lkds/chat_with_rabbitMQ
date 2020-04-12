@@ -70,6 +70,10 @@ class RabbitMQMiddleWare:
         self.channel.basic_publish(
             exchange='topic_chat', routing_key='message.group.'+ sendUser, body=msg)
     
+    def sendLoginInfo(self, userID):
+        self.channel.basic_publish(
+            exchange='topic_chat', routing_key='sys.login.'+ userID, body='null')
+
     def closeConnection(self):
         self.connection.close()
 
@@ -88,16 +92,23 @@ class RabbitMQReceiver:
             exchange='topic_chat', queue=self.queue_name, routing_key='message.single.' + self.userID + '.*')
         self.channel.queue_bind(
             exchange='topic_chat', queue=self.queue_name, routing_key='message.group.*')
+        self.channel.queue_bind(
+            exchange='topic_chat', queue=self.queue_name, routing_key='sys.login.*')
         self.channel.basic_consume(
             queue=self.queue_name, on_message_callback=self.on_response, auto_ack=True)
         self.channel.start_consuming()
     
     def on_response(self, ch, method, props, body):
         msgInfo = method.routing_key.split('.')
-        msgType = msgInfo[1]
-        if(msgType == 'group'):
-            sendUser = msgInfo[2]
-        else:
-            sendUser = msgInfo[3]
-        print(sendUser,body)
-        globalMsg[self.userID].append({'sendUser':sendUser, 'msgType':msgType, 'time':datetime.datetime.now().strftime('%H:%M:%S'),'msg':str(body,'utf8')})
+        mType = msgInfo[0]
+        if(mType == "message"):
+            msgType = msgInfo[1]
+            if(msgType == 'group'):
+                sendUser = msgInfo[2]
+            else:
+                sendUser = msgInfo[3]
+            print(sendUser,body)
+            globalMsg[self.userID].append({'sendUser': sendUser, 'msgType': msgType, 'time': datetime.datetime.now().strftime('%H:%M:%S'), 'msg': str(body, 'utf8')})
+        elif (mType == "sys"):
+            if(not msgInfo[2] in globalMsg.keys()):
+                globalMsg[msgInfo[2]]=[]
