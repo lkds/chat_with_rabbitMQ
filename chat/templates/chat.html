@@ -123,8 +123,8 @@
           <div class="row message-body">
             <div class="col-sm-12 message-main-sender">
               <div class="sender">
-                <div class="message-text">
-                  Thanks n I know its awesome...!
+                <div class="message-text2">
+                  {% comment %} <textarea class="form-control" rows="1" id="rightTextarea"></textarea> {% endcomment %}
                 </div>
                 <span class="message-time pull-right">
                   Sun
@@ -137,17 +137,18 @@
 
         <!-- Reply Box -->
         <div class="row reply">
-          <div class="col-sm-1 col-xs-1 reply-emojis">
+          {% comment %} <div class="col-sm-1 col-xs-1 reply-emojis">
             <i class="fa fa-smile-o fa-2x"></i>
-          </div>
+          </div> {% endcomment %}
           <div class="col-sm-9 col-xs-9 reply-main">
             <textarea class="form-control" rows="1" id="comment"></textarea>
           </div>
-          <div class="col-sm-1 col-xs-1 reply-recording">
+          {% comment %} <div class="col-sm-1 col-xs-1 reply-recording">
             <i class="fa fa-microphone fa-2x" aria-hidden="true"></i>
-          </div>
+          </div> {% endcomment %}
           <div class="col-sm-1 col-xs-1 reply-send">
-            <i class="fa fa-send fa-2x" aria-hidden="true"></i>
+            {% comment %} <i class="fa fa-send fa-2x" aria-hidden="true"></i> {% endcomment %}
+            <input type="submit" id="send">
           </div>
         </div>
         <!-- Reply Box End -->
@@ -161,6 +162,19 @@
 </body>
 <script>
   window.onload = () => {
+    
+  }
+</script>
+
+</html>
+
+<script src="jquery.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+
+	$("#send").click(function(){
+		let val = $("#comment").val();
+    $(".message-text2").html(val)
+	})
     setInterval(() => {
           $.ajax({
             type: "GET",
@@ -181,4 +195,4 @@
   }
 </script>
 
-</html>
+</script>
