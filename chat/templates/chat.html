@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
   <!-- Font Awesome File -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://cdn.bootcss.com/jquery/3.5.0/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 
@@ -208,6 +208,13 @@
       setInterval(msgAjax,1000);
       listAjax();
       setInterval(listAjax,3000);
+       $(document).keydown(function(event){
+        
+　　　　　if(event.keyCode===13){
+            sendMsg();
+        }
+
+　　　　});
     }
   
   generateMsg = (msg,sendUser,time) => {
