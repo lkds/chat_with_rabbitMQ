@@ -175,12 +175,13 @@
               type: "GET",
               url: "http://127.0.0.1:8000/chat/getMsg/"+"{{loginId}}"+"/",
               dataType: "json",
-              success: function(data){
+              success: function(data){                  
                           console.log(data);
                           if(data.res.length > msglength){
                             renderMsg(data.res);
                             msglength = data.res.length
                           }
+                         
                         },
               error: (err) => {
                 console.log(err);
@@ -237,6 +238,7 @@
         var data = msg[i];
         var msgObj = generateMsg(data.msg,data.sendUser,data.time);
         con.append(msgObj);
+        document.getElementById('conversation').scrollTop=document.getElementById('conversation').scrollHeight;
     }
   }
 
