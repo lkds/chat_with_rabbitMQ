@@ -78,14 +78,16 @@ def sendMsg(request, sendUser, targetUser, msgType, msg):
     else:
         rabbitMQMiddleWare.sendSingleMsg(msg, targetUser,sendUser)
     
-    # if (sendUser in globalMsg.keys()):
-    #     globalMsg[sendUser].append({'sendUser':sendUser, 'msgType':msgType, 'time':datetime.datetime.now().strftime('%H:%M:%S'),'msg':msg})
+    
 
     return HttpResponse('ok')
 
-def getMsg(request,userID):
+def getMsg(request,userID,targetID):
     if (userID in globalMsg.keys()):
-        return HttpResponse(json.dumps({'res':globalMsg[userID]}))
+        if(targetID in globalMsg.keys()):
+            return HttpResponse(json.dumps({'res':globalMsg[userID]+globalMsg[targetID]}))      
+        elif(targetID=='祖安交流'):
+            return HttpResponse(json.dumps({'res':globalMsg[userID]})) 
     return HttpResponse({'res':'null'})
 
 def createNewReceiver(loginId):

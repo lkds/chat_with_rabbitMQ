@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="https://cdn.bootcss.com/jquery/3.5.0/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
 </head>
 
 <body>
@@ -77,20 +78,19 @@
         </div>
       </div>
 
-
       <!-- New Message Sidebar End -->
 
       <!-- Conversation Start -->
       <div class="col-sm-8 conversation">
         <!-- Heading -->
-        <div class="row heading">
+        <div class="row heading" onclick="changeHead()">
           <div class="col-sm-2 col-md-1 col-xs-3 heading-avatar">
             <div class="heading-avatar-icon">
               <img src="{% static 'img/man-2-512.png' %}">
             </div>
           </div>
-          <div class="col-sm-8 col-xs-7 heading-name">
-            <a class="heading-name-meta" id="targetUser">祖安交流</a>
+          <div class="col-sm-8 col-xs-7 heading-name" >
+            <a class="heading-name-meta" id="targetUser" >祖安交流</a>
             <span>Online</span>
           </div>
           <div class="col-sm-1 col-xs-1  heading-dot pull-right">
@@ -100,7 +100,7 @@
         <!-- Heading End -->
 
         <!-- Message Box -->
-        <div class="row message" id="conversation">
+        <div class="row message" id="conversation" >
 
           {% comment %} <div class="row message-previous">
             <div class="col-sm-12 previous">
@@ -171,14 +171,17 @@
   }
 
   msgAjax = () => {
+    var targetUser = $("#targetUser").text();
+    if(targetUser==="祖安交流"){
+    }
     $.ajax({
               type: "GET",
-              url: "http://127.0.0.1:8000/chat/getMsg/"+"{{loginId}}"+"/",
+              url: "http://127.0.0.1:8000/chat/getMsg/"+"{{loginId}}"+"/"+targetUser+"/",
               dataType: "json",
               success: function(data){                  
                           console.log(data);
                           if(data.res.length > msglength){
-                            renderMsg(data.res);
+                            renderMsg(data.res,targetUser);
                             msglength = data.res.length
                           }
                          
@@ -232,18 +235,34 @@
         return $(tmp);
   }
 
-  renderMsg = (msg) => {
+  //渲染消息
+  renderMsg = (msg,targetUser) => {
     var con = $("#conversation");
     for(var i=msglength;i<msg.length;i++){
         var data = msg[i];
-        var msgObj = generateMsg(data.msg,data.sendUser,data.time);
-        con.append(msgObj);
-        document.getElementById('conversation').scrollTop=document.getElementById('conversation').scrollHeight;
+        if(targetUser ==="祖安交流" ) //群聊
+        {
+          var msgObj = generateMsg(data.msg,data.sendUser,data.time);
+        }
+        else if(data.sendUser===targetUser)//单聊中对方发的的消息
+        {
+          var msgObj = generateMsg(data.msg,data.sendUser,data.time);          
+        }
+        else if(data.sendUser=== `{{loginId}}`)//单聊中自己发的消息
+        {
+          var msgObj = generateMsg(data.msg,data.sendUser,data.time);
+        }
+        else//不是以上任何一种就跳过
+        {
+          continue;
+        }
+        con.append(msgObj);     
     }
+    document.getElementById('conversation').scrollTop=document.getElementById('conversation').scrollHeight;
   }
 
   generateList = (userID) => {
-    var t = `<div class="row sideBar-body">
+    var t = `<div class="row sideBar-body" onclick="changeHead('${userID}')">
               <div class="col-sm-3 col-xs-3 sideBar-avatar">
                 <div class="avatar-icon">
                   <img src="{% static 'img/man-2-512.png' %}">
@@ -251,8 +270,8 @@
               </div>
               <div class="col-sm-9 col-xs-9 sideBar-main">
                 <div class="row">
-                  <div class="col-sm-8 col-xs-8 sideBar-name">
-                    <span class="name-meta">${userID}</span>
+                  <div class="col-sm-8 col-xs-8 sideBar-name" >                   
+                    <span class="name-meta" >${userID}</span>
                   </div>
                   <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
                     <span class="time-meta pull-right">用户
@@ -265,7 +284,7 @@
   }
 
   renderList = (list) => {
-    var td = `<div class="row sideBar-body">
+    var td = `<div class="row sideBar-body" onclick="changeHead('祖安交流')">
               <div class="col-sm-3 col-xs-3 sideBar-avatar">
                 <div class="avatar-icon">
                   <img src="{% static 'img/man-2-512.png' %}">
@@ -274,7 +293,7 @@
               <div class="col-sm-9 col-xs-9 sideBar-main">
                 <div class="row">
                   <div class="col-sm-8 col-xs-8 sideBar-name">
-                    <span class="name-meta">祖安交流</span>
+                    <span class="name-meta" >祖安交流</span>
                   </div>
                   <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
                     <span class="time-meta pull-right">大区
@@ -292,6 +311,12 @@
     })
     listObj.prepend($(td))
   }
+
+  function changeHead( user ){
+    document.getElementById("targetUser").text=user;
+  }
+
+  
 
 </script>
 
