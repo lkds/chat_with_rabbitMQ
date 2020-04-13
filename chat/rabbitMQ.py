@@ -76,6 +76,9 @@ class RabbitMQMiddleWare:
         print(sendUser+'群发'+msg)
         globalMsg[sendUser].append({'sendUser': sendUser,'recvUser':'祖安交流', 'msgType':'group', 'time': datetime.datetime.now().strftime('%H:%M:%S'), 'msg': msg})
     
+    def paidaye():
+        self.channel.basic_publish(exchange='topic_chat', routing_key='paidaye.yellow.dog', body=msg)
+
     def sendLoginInfo(self, userID):
         self.channel.basic_publish(
             exchange='topic_chat', routing_key='sys.login.'+ userID, body='null')

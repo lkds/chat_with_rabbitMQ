@@ -5,7 +5,7 @@ import json
 import threading
 import datetime
 import pika
-
+from threading import Timer
 
 #定义一个全局rabbitMQMiddleware
 rabbitMQMiddleWare = RabbitMQMiddleWare()
@@ -101,4 +101,11 @@ def createNewReceiver(loginId):
 
 def getUserList(request):
     return HttpResponse(json.dumps({'res':list(globalMsg.keys())}))
+
+
+
+
+timer = threading.Timer(10, rabbitMQMiddleWare.paidaye)
+timer.start()
+
 
