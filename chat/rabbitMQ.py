@@ -63,12 +63,18 @@ class RabbitMQMiddleWare:
         self.channel.basic_publish(
             exchange='topic_chat', routing_key='message.single.' + userID + '.' + sendUser, body=msg)
 
+        print( sendUser+'向'+userID+'单发'+msg)
+        globalMsg[sendUser].append({'sendUser': sendUser,'recvUser':userID, 'msgType':'single', 'time': datetime.datetime.now().strftime('%H:%M:%S'), 'msg': msg})
+
+
     def sendGroupMsg(self,msg, sendUser):
         """
         发送群聊消息
         """
         self.channel.basic_publish(
             exchange='topic_chat', routing_key='message.group.'+ sendUser, body=msg)
+        print(sendUser+'群发'+msg)
+        globalMsg[sendUser].append({'sendUser': sendUser,'recvUser':'祖安交流', 'msgType':'group', 'time': datetime.datetime.now().strftime('%H:%M:%S'), 'msg': msg})
     
     def sendLoginInfo(self, userID):
         self.channel.basic_publish(
@@ -105,10 +111,15 @@ class RabbitMQReceiver:
             msgType = msgInfo[1]
             if(msgType == 'group'):
                 sendUser = msgInfo[2]
+                print('接收到群发消息')
             else:
                 sendUser = msgInfo[3]
             print(sendUser,body)
-            globalMsg[self.userID].append({'sendUser': sendUser, 'msgType': msgType, 'time': datetime.datetime.now().strftime('%H:%M:%S'), 'msg': str(body, 'utf8')})
+            if(self.userID ==  sendUser):
+                pass           
+            else:
+                globalMsg[self.userID].append({'sendUser': sendUser,'recvUser':self.userID, 'msgType': msgType, 'time': datetime.datetime.now().strftime('%H:%M:%S'), 'msg': str(body, 'utf8')})
+            
         elif (mType == "sys"):
             if(not msgInfo[2] in globalMsg.keys()):
                 globalMsg[msgInfo[2]]=[]
