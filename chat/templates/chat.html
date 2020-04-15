@@ -366,13 +366,16 @@ $.ajaxSetup({
 
     }
   
-  generateMsg = (msg,sendUser,time) => {
+  generateMsg = (msg,sendUser,time,msgType) => {
         //var myID = $("#myID").text();
         var pos = "receiver";
         var prefix = `<span style="color:blue"><b>${sendUser}:</b></span>`
         if(sendUser === `{{loginId}}`){
           pos = "sender"
           prefix = ""
+        }
+        if(msgType==="single"){
+          prefix=""
         }
         var tmp = "<div class=\"row message-body\"><div class=\"col-sm-12 message-main-"+pos+"\"><div class=\""+pos+"\">"+
                 "<div class=\"message-text\">"+prefix+msg+"</div><span class=\"message-time pull-right\">"+time+"</span>"+
@@ -388,15 +391,15 @@ $.ajaxSetup({
         var data = msg[i];
         if(data.sendUser ===targetUser && data.recvUser ===`{{loginId}}` &&data.msgType!=='group')   //单聊用的
         {
-          var msgObj = generateMsg(data.msg,data.sendUser,data.time);
+          var msgObj = generateMsg(data.msg,data.sendUser,data.time,data.msgType);
         }
         else if(data.sendUser ===`{{loginId}}` && data.recvUser ===targetUser &&data.msgType!=='group')//单聊用的
         {
-          var msgObj = generateMsg(data.msg,data.sendUser,data.time);
+          var msgObj = generateMsg(data.msg,data.sendUser,data.time,data.msgType);
         }
         else if(targetUser==='祖安交流' && data.msgType==='group') //群聊用的
         {
-          var msgObj = generateMsg(data.msg,data.sendUser,data.time);
+          var msgObj = generateMsg(data.msg,data.sendUser,data.time,data.msgType);
         }
         else//不是以上任何一种就跳过
         {
@@ -452,8 +455,10 @@ $.ajaxSetup({
     var listObj = $('#listObj');
     listObj.html("")
     list.forEach((item) => {
+      if(item!=="{{loginId}}"){
       var ttt = generateList(item);
       listObj.append(ttt);
+      }
     })
     listObj.prepend($(td))
   }
